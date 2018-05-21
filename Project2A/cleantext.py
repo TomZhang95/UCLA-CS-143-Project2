@@ -7,6 +7,9 @@ from __future__ import print_function
 import re
 import string
 import argparse
+import json
+import sys
+
 
 __author__ = ""
 __email__ = ""
@@ -221,6 +224,24 @@ if __name__ == "__main__":
     # pass to "sanitize" and print the result as a list.
 
     # YOUR CODE GOES BELOW.
-    s = sanitize("""I'm afraid I can't explain myself, sir. Because I am not myself, you see?""")
-    for x in s:
-        print(x)
+
+    # prompt the user for a file to import
+
+    filename = sys.argv[1]
+    print(sys.argv[1])
+
+    #filename =  './test.json'
+    # Read JSON data into the datastore variable
+    if filename:
+        with open(filename, encoding='utf-8') as fd:
+            json_str = fd.readline()
+            while (json_str != ""):
+                data = json.loads(json_str)
+                print(data['title'])
+                s = sanitize(data['title'])
+                for x in s:
+                    print(x)
+                print('\n')
+                json_str = fd.readline()
+
+
