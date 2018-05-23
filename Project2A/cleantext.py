@@ -124,18 +124,25 @@ def sanitize(text):
     parsed_text = parsed_text.replace('\t', ' ')
 
     #Remove all URLs
-    http_pos = parsed_text.find('http:')
+    http_pos = parsed_text.find('http')
     while (http_pos != -1):
         space_pos = parsed_text[http_pos+1:].find(' ')
         if (space_pos != -1):
             parsed_text = parsed_text[:http_pos] + parsed_text[http_pos+space_pos+2:]
         else:
             parsed_text = parsed_text[:http_pos]
-        http_pos = parsed_text.find('http:')
+        http_pos = parsed_text.find('http')
 
-    #Remove all parenthesis
+    #Remove all parenthesis and quote
     parsed_text = parsed_text.replace('(', ' ')
     parsed_text = parsed_text.replace(')', ' ')
+    parsed_text = parsed_text.replace('[', ' ')
+    parsed_text = parsed_text.replace(']', ' ')
+    parsed_text = parsed_text.replace('{', ' ')
+    parsed_text = parsed_text.replace('}', ' ')
+    parsed_text = parsed_text.replace('"', ' ')
+    parsed_text = parsed_text.replace('“', ' ')
+    parsed_text = parsed_text.replace('”', ' ')
 
     # Remove duplicate space and change to lower case
     parsed_text = ' '.join(parsed_text.split())
@@ -146,24 +153,30 @@ def sanitize(text):
     punctuation_list = pattern.findall(parsed_text)
     punctuation_list = list(set(punctuation_list))
     for i in range(len(punctuation_list)):
-        punctuation = punctuation_list[i]
+        punctuation = punctuation_list[i][0]
         replace = ' '+punctuation
-        if (punctuation == "? "):
-            punctuation = "\? "
+        if (punctuation == "?"):
+            punctuation = "\?"
             replace = " ? "
-        elif (punctuation == ". "):
-            punctuation = "\. "
+        elif (punctuation == "."):
+            punctuation = "\."
             replace = " . "
         parsed_text = re.sub(punctuation, replace, parsed_text)
     if re.search('[^a-zA-Z0-9\s]', parsed_text[-1:]) != None:
+        i = -1
         parsed_text = parsed_text[:-1] + ' ' + parsed_text[-1:]
-
     #Remove all punctuation except punctuation that ends a phrase or sentence.
     pattern = re.compile('[^a-zA-Z0-9\s\.!\?,;:]\s')
     remove_list = pattern.findall(parsed_text)
     remove_list = list(set(remove_list))
     for i in range(len(remove_list)):
         parsed_text = parsed_text.replace(remove_list[i][0], '')
+
+    pattern = re.compile('\s[^a-zA-Z0-9\s\.!\?,;:]')
+    remove_list = pattern.findall(parsed_text)
+    remove_list = list(set(remove_list))
+    for i in range(len(remove_list)):
+        parsed_text = parsed_text.replace(remove_list[i][1], '')
 
     #Parse the string to sentences
     parsed_list = re.split(r"[\.!\?,;:]", parsed_text)
@@ -174,6 +187,7 @@ def sanitize(text):
 
     #Create unigrams
     unigrams = ' '.join(parsed_list)
+    unigrams = ' '.join(unigrams.split())
 
     #Create bigrams
     bigrams_list = []
@@ -192,6 +206,7 @@ def sanitize(text):
             bigrams_list.append(sent[:curr_space] + '_' + sent[curr_space + 1:])
 
     bigrams = ' '.join(bigrams_list)
+    bigrams = ' '.join(bigrams.split())
 
     #Create trigrams
     trigrams_list = []
@@ -215,6 +230,7 @@ def sanitize(text):
                             sent[curr_space + next_space + third_space + 3:])
 
     trigrams = ' '.join(trigrams_list)
+    trigrams = ' '.join(trigrams.split())
 
 
 
