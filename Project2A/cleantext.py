@@ -123,10 +123,6 @@ def sanitize(text):
     parsed_text = text.replace('\n', ' ')
     parsed_text = parsed_text.replace('\t', ' ')
 
-    #Remove duplicate space and change to lower case
-    parsed_text = ' '.join(parsed_text.split())
-    parsed_text = parsed_text.lower()
-
     #Remove all URLs
     http_pos = parsed_text.find('http:')
     while (http_pos != -1):
@@ -137,8 +133,16 @@ def sanitize(text):
             parsed_text = parsed_text[:http_pos]
         http_pos = parsed_text.find('http:')
 
+    #Remove all parenthesis
+    parsed_text = parsed_text.replace('(', ' ')
+    parsed_text = parsed_text.replace(')', ' ')
+
+    # Remove duplicate space and change to lower case
+    parsed_text = ' '.join(parsed_text.split())
+    parsed_text = parsed_text.lower()
+
     #Separate all external punctuation
-    pattern = re.compile('[^a-zA-Z0-9\s]\s')
+    pattern = re.compile('[^a-zA-Z0-9\s*]\s')
     punctuation_list = pattern.findall(parsed_text)
     punctuation_list = list(set(punctuation_list))
     for i in range(len(punctuation_list)):
@@ -151,7 +155,7 @@ def sanitize(text):
             punctuation = "\. "
             replace = " . "
         parsed_text = re.sub(punctuation, replace, parsed_text)
-    if (re.search(pattern, parsed_text[:-1]) != None):
+    if re.search('[^a-zA-Z0-9\s]', parsed_text[-1:]) != None:
         parsed_text = parsed_text[:-1] + ' ' + parsed_text[-1:]
 
     #Remove all punctuation except punctuation that ends a phrase or sentence.
@@ -159,7 +163,7 @@ def sanitize(text):
     remove_list = pattern.findall(parsed_text)
     remove_list = list(set(remove_list))
     for i in range(len(remove_list)):
-        parsed_text = parsed_text.replace(remove_list[i], '')
+        parsed_text = parsed_text.replace(remove_list[i][0], '')
 
     #Parse the string to sentences
     parsed_list = re.split(r"[\.!\?,;:]", parsed_text)
@@ -237,8 +241,8 @@ if __name__ == "__main__":
             json_str = fd.readline()
             while (json_str != ""):
                 data = json.loads(json_str)
-                print(data['title'])
-                s = sanitize(data['title'])
+                print(data['body'])
+                s = sanitize(data['body'])
                 for x in s:
                     print(x)
                 print('\n')
