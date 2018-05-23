@@ -170,6 +170,8 @@ def sanitize(text):
     for i in range(len(parsed_list)):
         parsed_list[i] = ' '.join(parsed_list[i].split())
 
+    parsed_text = ' '.join(parsed_text.split())
+
     #Create unigrams
     unigrams = ' '.join(parsed_list)
 
